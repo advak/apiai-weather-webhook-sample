@@ -80,7 +80,7 @@ def makeWebhookResult(data):
     units = channel.get('units')
     if (location is None) or (item is None) or (units is None):
         return {}
-    tomorrow_forcast = channel.get('forecast')[1]
+    tomorrow_forcast = item.get('forecast')[1]
     tomorrow_text = tomorrow_forcast.get('text')
     tomorrow_high = tomorrow_forcast.get('high')
     tomorrow_low = tomorrow_forcast.get('low')
