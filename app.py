@@ -41,13 +41,14 @@ def processRequest(req):
     if req.get("result").get("action") != "yahooWeatherForecast":
         return {}
     baseurl = "https://query.yahooapis.com/v1/public/yql?"
-    yql_query = makeYqlQuery(req)
+    yql = makeYqlQuery(req)
+    yql_query, date_period = yql[0], yql[1]
     if yql_query is None:
         return {}
     yql_url = baseurl + urlencode({'q': yql_query}) + "&format=json"
     result = urlopen(yql_url).read()
     data = json.loads(result)
-    res = makeWebhookResult(data)
+    res = makeWebhookResult(data, date_period)
     return res
 
 
@@ -60,10 +61,10 @@ def makeYqlQuery(req):
     if city is None:
         return None
 
-    return "select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "') and u='c' limit 3"
+    return ("select * from weather.forecast where woeid in (select woeid from geo.places(1) where text='" + city + "') and u='c' limit 3", date_period)
 
 
-def makeWebhookResult(data):
+def makeWebhookResult(data, date_period):
     query = data.get('query')
     if query is None:
         return {}
@@ -81,6 +82,7 @@ def makeWebhookResult(data):
     units = channel.get('units')
     if (location is None) or (item is None) or (units is None):
         return {}
+
     tomorrow_forcast = item.get('forecast')[1]
     tomorrow_text = tomorrow_forcast.get('text')
     tomorrow_high = tomorrow_forcast.get('high')
@@ -92,7 +94,7 @@ def makeWebhookResult(data):
 
     # print(json.dumps(item, indent=4))
 
-    speech = "Today in " + location.get('city') + ', ' + location.get('country') + ": " + condition.get('text') + \
+    speech = "Today in " + date_period + location.get('city') + ', ' + location.get('country') + ": " + condition.get('text') + \
              ", the temperature is " + condition.get('temp') + " " + units.get('temperature')
     # speech = date_period + " in " + location.get('city') + ', ' + location.get('country') + ": " + tomorrow_text + \
     #          ", the high temperature will be " + tomorrow_high + units.get('temperature') + " the low temperature will be " + tomorrow_low + units.get('temperature')
