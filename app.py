@@ -55,7 +55,7 @@ def makeYqlQuery(req):
     result = req.get("result")
     parameters = result.get("parameters")
     city = parameters.get("geo-city")
-    date_period = parameters.get("date-period1")
+    date_period = parameters.get("date-period")
     # time = parameters.get("date")
     if city is None:
         return None
