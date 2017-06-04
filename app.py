@@ -83,7 +83,16 @@ def makeWebhookResult(data, date_period):
     if (location is None) or (item is None) or (units is None):
         return {}
 
-    tomorrow_forcast = item.get('forecast')[1]
+    if date_period == 'now':
+        date_offset = 0
+    elif date_period == 'tomorrow':
+        date_offset = 1
+    elif date_period == 'in two days':
+        date_offset = 2
+    else:
+        date_offset = 0
+
+    tomorrow_forcast = item.get('forecast')[date_offset]
     tomorrow_text = tomorrow_forcast.get('text')
     tomorrow_high = tomorrow_forcast.get('high')
     tomorrow_low = tomorrow_forcast.get('low')
@@ -94,10 +103,10 @@ def makeWebhookResult(data, date_period):
 
     # print(json.dumps(item, indent=4))
 
-    speech = "Today in " + date_period + location.get('city') + ', ' + location.get('country') + ": " + condition.get('text') + \
-             ", the temperature is " + condition.get('temp') + " " + units.get('temperature')
-    # speech = date_period + " in " + location.get('city') + ', ' + location.get('country') + ": " + tomorrow_text + \
-    #          ", the high temperature will be " + tomorrow_high + units.get('temperature') + " the low temperature will be " + tomorrow_low + units.get('temperature')
+    # speech = "Today in " + location.get('city') + ', ' + location.get('country') + ": " + condition.get('text') + \
+    #          ", the temperature is " + condition.get('temp') + " " + units.get('temperature')
+    speech = date_period + " in " + location.get('city') + ', ' + location.get('country') + ": " + tomorrow_text + \
+             ", the high temperature will be " + tomorrow_high + units.get('temperature') + " the low temperature will be " + tomorrow_low + units.get('temperature')
 
     print("Response:")
     print(speech)
